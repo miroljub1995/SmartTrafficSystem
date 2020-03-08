@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on недеља, 08. март 2020. 15:18:10 CET by Eclipse SUMO netedit Version 1.5.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <sumo-net-file value="/home/dunja/Desktop/SmartTrafficSystem/cross.net.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/home/dunja/Desktop/SmartTrafficSystem/cross.net.xml"/>
+    </output>
+
+    <processing>
+        <geometry.min-radius.fix.railways value="false"/>
+        <geometry.max-grade.fix value="false"/>
+        <offset.disable-normalization value="true"/>
+        <lefthand value="false"/>
+    </processing>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+        <junctions.corner-detail value="5"/>
+        <junctions.limit-turn-speed value="5.5"/>
+        <rectangular-lane-cut value="false"/>
+    </junctions>
+
+    <pedestrian>
+        <walkingareas value="false"/>
+    </pedestrian>
+
+    <netedit>
+        <additional-files value="/home/dunja/Desktop/SmartTrafficSystem/cross.add.xml"/>
+    </netedit>
+
+    <report>
+        <aggregate-warnings value="5"/>
+    </report>
+
+</configuration>
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <e2Detector id="e2Detector_r_down_0" lane="r_down_0" pos="239.50" length="50.00" freq="900.00" file="e2Detector_r_down_0_7.xml"/>
+    <e2Detector id="e2Detector_r_down_1" lane="r_down_1" pos="239.50" length="50.00" freq="900.00" file="e2Detector_r_down_1_6.xml"/>
+    <e2Detector id="e2Detector_r_left_0" lane="r_left_0" pos="239.50" length="50.00" freq="900.00" file="e2Detector_1.xml"/>
+    <e2Detector id="e2Detector_r_left_1" lane="r_left_1" pos="239.50" length="50.00" freq="900.00" file="e2Detector_0.xml"/>
+    <e2Detector id="e2Detector_r_right_0" lane="r_right_0" pos="239.50" length="50.00" freq="900.00" file="e2Detector_r_right_0_4.xml"/>
+    <e2Detector id="e2Detector_r_right_1" lane="r_right_1" pos="239.50" length="50.00" freq="900.00" file="e2Detector_r_right_1_5.xml"/>
+    <e2Detector id="e2Detector_r_up_0" lane="r_up_0" pos="239.50" length="50.00" freq="900.00" file="e2Detector_r_up_0_2.xml"/>
+    <e2Detector id="e2Detector_r_up_1" lane="r_up_1" pos="239.50" length="50.00" freq="900.00" file="e2Detector_r_up_1_3.xml"/>
+</additional>
