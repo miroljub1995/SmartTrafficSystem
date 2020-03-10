@@ -41,12 +41,12 @@
 -->
 
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <e2Detector id="e2Detector_r_up_0" lane="r_up_0" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_up_0.xml"/>
+    <e2Detector id="e2Detector_r_up_1" lane="r_up_1" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_up_1.xml"/>
+    <e2Detector id="e2Detector_r_right_0" lane="r_right_0" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_right_0.xml"/>
+    <e2Detector id="e2Detector_r_right_1" lane="r_right_1" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_right_1.xml"/>
     <e2Detector id="e2Detector_r_down_0" lane="r_down_0" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_down_0.xml"/>
     <e2Detector id="e2Detector_r_down_1" lane="r_down_1" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_down_1.xml"/>
     <e2Detector id="e2Detector_r_left_0" lane="r_left_0" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_left_0.xml"/>
     <e2Detector id="e2Detector_r_left_1" lane="r_left_1" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_left_1.xml"/>
-    <e2Detector id="e2Detector_r_right_0" lane="r_right_0" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_right_0.xml"/>
-    <e2Detector id="e2Detector_r_right_1" lane="r_right_1" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_right_1.xml"/>
-    <e2Detector id="e2Detector_r_up_0" lane="r_up_0" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_up_0.xml"/>
-    <e2Detector id="e2Detector_r_up_1" lane="r_up_1" pos="239.50" length="49.60" freq="900.00" file="out/e2Detector_r_up_1.xml"/>
 </additional>
