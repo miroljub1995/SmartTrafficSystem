@@ -775,4 +775,5 @@
         </polys>
         <legend showSizeLegend="1" showColorLegend="0"/>
     </scheme>
+    <delay value="400"/>
 </viewsettings>
