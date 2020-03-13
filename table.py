@@ -11,24 +11,30 @@ class Table:
         self.predicted_action = self.__get_next_action()
 
     def save(self, path):
-        np.savetxt(path, self.q_matrix)
+        np.savetxt(path, self.q_matrix, fmt="%+5.15f")
+        print("Table saved")
 
     def load(self, path):
         self.q_matrix = np.loadtxt(path)
         self.next_step()
 
     def __get_next_action(self):
-        k = 1.001
+        random_rate = 0.9
+        probs = np.full(self.q_matrix.shape[1], (1 - random_rate) / (self.q_matrix.shape[1] - 1.))
         row = self.q_matrix[self.state]
-        mapped_row = k ** row
-        sum_of_elements = np.sum(mapped_row)
-        probs = mapped_row / sum_of_elements
+        max_index = np.argmax(row)
+        probs[max_index] = random_rate
+
+        # k = 1.06
+        # mapped_row = k ** row
+        # sum_of_elements = np.sum(mapped_row)
+        # probs = mapped_row / sum_of_elements
         selected = np.random.choice(self.q_matrix.shape[1], p=probs)
         return selected
 
     def learn(self, chunks):
-        n = 10
-        gama = 1
+        n = 4
+        gama = 0.5
         num_chunks = len(chunks)
         loss = 0.0
         for chunk in reversed(chunks):
@@ -36,7 +42,7 @@ class Table:
             old_val = self.q_matrix[s, a]
             self.q_matrix[s, a] += 1. / n * (r + gama * np.amax(self.q_matrix[s_prim]) - self.q_matrix[s, a])
             loss += abs(old_val - self.q_matrix[s, a])
-        print("Loss: {}".format(loss / num_chunks), end="\r", flush=True)
+        print("Loss: {}".format(loss / num_chunks))
 
 
     def __calculate_current_state(self):

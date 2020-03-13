@@ -17,19 +17,21 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
-from sumolib import checkBinary  # noqa
-import traci  # noqa
+from sumolib import checkBinary
+import traci
 import numpy as np
 from detectors import Detectors
 from table import Table
 
 STEP_SIZE = 0.2
-SIMULATION_DURATION = 400000
+SIMULATION_DURATION = 4000000
 NUM_CHUNKS_IN_PERIOD = 10
 GREEN_LIGHT_DUR = 15
 YELLOW_LIGHT_DUR = 3
 TABLE_OUT_PATH = "out/table.txt"
-MAX_EVAL = 30
+
+TRAINING_DURATION = 36000
+TABLE_SAVING_INTERVAL = 20
 
 def isYellow():
     return traci.trafficlight.getPhase("center") % 2 != 0
@@ -50,12 +52,15 @@ def run():
         table.load(TABLE_OUT_PATH)
     detectors = Detectors()
     
-    prev_eval = MAX_EVAL
+    prev_eval = 0
 
     chunks = []
     num_passed_light = 0
+    num_learned = 0
 
-    while seconds < SIMULATION_DURATION:
+    # while seconds < SIMULATION_DURATION:
+    start = time.time()
+    while time.time() - start < TRAINING_DURATION:
         traci.simulationStep()
         seconds += STEP_SIZE
 
@@ -72,19 +77,19 @@ def run():
             # flow = num_passed_light * 60 / GREEN_LIGHT_DUR + YELLOW_LIGHT_DUR
             # print("Flow: {}".format(flow))
 
-            sum_of_cars = detectors.num_cars
+            sum_of_cars = detectors.num_cars + 0.5
             curr_eval = 0
-            if sum_of_cars != 0:
-                curr_eval = num_passed_light / sum_of_cars
-            else:
-                curr_eval = MAX_EVAL
+            curr_eval = num_passed_light / sum_of_cars
 
             reward = curr_eval - prev_eval
             chunks.append((prev_state, prev_action, reward, table.state))
 
             if len(chunks) == NUM_CHUNKS_IN_PERIOD:
                 table.learn(chunks)
-                table.save(TABLE_OUT_PATH)
+                num_learned += 1
+                if num_learned >= TABLE_SAVING_INTERVAL:
+                    table.save(TABLE_OUT_PATH)
+                    num_learned = 0
                 chunks = []
             
             steps_in_phase = 0
@@ -104,10 +109,7 @@ def run():
         else:
             steps_in_phase += STEP_SIZE
 
-    num_passed_light = detectors.num_passed
-    print("Num of cars: {}".format(num_passed_light))
-    print("Time: {}".format(traci.simulation.getTime()))
-    print(num_passed_light * 60 / traci.simulation.getTime())
+    table.save(TABLE_OUT_PATH)
     traci.close()
     sys.stdout.flush()
 
@@ -118,8 +120,8 @@ if __name__ == "__main__":
     if not os.path.exists(out):
         os.mkdir(out)
 
-    # sumoBinary = checkBinary('sumo-gui')
-    sumoBinary = checkBinary('sumo')
+    sumoBinary = checkBinary('sumo-gui')
+    # sumoBinary = checkBinary('sumo')
     traci.start([sumoBinary, "-c", "cross.sumocfg",
                              "--tripinfo-output", os.path.join(out, "tripinfo.xml"),
                              "--step-length", "{}".format(STEP_SIZE),
