@@ -10,6 +10,7 @@
         <route-files value="cross.rou.xml"/>
         <additional value="cross.add.xml"/>
         <gui-settings-file value="view_settings.xml"/>
+        <time-to-teleport value="1000000"/>
     </input>
 
     <output>

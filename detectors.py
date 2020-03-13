@@ -27,6 +27,8 @@ class Detector:
         self.cars = []
 
     def update(self):
+        self.num_passed = 0
+        self.num_arrived = 0
         cars = traci.lanearea.getLastStepVehicleIDs(self.id)
         for car in cars:
             if car not in self.cars:

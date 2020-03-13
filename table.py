@@ -1,25 +1,43 @@
 import numpy as np
 import traci
 
-def map_lambda(arr, func):
-    return np.array([func(x) for x in arr])
-
 class Table:
     def __init__(self, num_of_states, num_of_actions):
-        self.q_matrix = np.random.random_sample((num_of_states, num_of_actions))
-        self.current_state = 0
+        self.q_matrix = np.zeros((num_of_states, num_of_actions))
+        self.next_step()
 
-    def update(self):
-        self.current_state = self.__calculate_current_state()
+    def next_step(self):
+        self.state = self.__calculate_current_state()
+        self.predicted_action = self.__get_next_action()
 
-    def get_next_action(self):
-        k = 2
-        row = self.q_matrix[self.current_state]
-        mapped_row = map_lambda(row, lambda x: k ** x)
+    def save(self, path):
+        np.savetxt(path, self.q_matrix)
+
+    def load(self, path):
+        self.q_matrix = np.loadtxt(path)
+        self.next_step()
+
+    def __get_next_action(self):
+        k = 1.001
+        row = self.q_matrix[self.state]
+        mapped_row = k ** row
         sum_of_elements = np.sum(mapped_row)
-        probs = map_lambda(mapped_row, lambda x: x / sum_of_elements)
+        probs = mapped_row / sum_of_elements
         selected = np.random.choice(self.q_matrix.shape[1], p=probs)
         return selected
+
+    def learn(self, chunks):
+        n = 10
+        gama = 1
+        num_chunks = len(chunks)
+        loss = 0.0
+        for chunk in reversed(chunks):
+            s, a, r, s_prim = chunk
+            old_val = self.q_matrix[s, a]
+            self.q_matrix[s, a] += 1. / n * (r + gama * np.amax(self.q_matrix[s_prim]) - self.q_matrix[s, a])
+            loss += abs(old_val - self.q_matrix[s, a])
+        print("Loss: {}".format(loss / num_chunks), end="\r", flush=True)
+
 
     def __calculate_current_state(self):
         det_pairs = [

@@ -8,6 +8,7 @@ import os
 import sys
 import random
 import time
+import multiprocessing
 
 # we need to import python modules from the $SUMO_HOME/tools directory
 if 'SUMO_HOME' in os.environ:
@@ -22,9 +23,13 @@ import numpy as np
 from detectors import Detectors
 from table import Table
 
-STEP_SIZE = 0.05
+STEP_SIZE = 0.2
 SIMULATION_DURATION = 400000
-CHUNK_DURATION = 180
+NUM_CHUNKS_IN_PERIOD = 10
+GREEN_LIGHT_DUR = 15
+YELLOW_LIGHT_DUR = 3
+TABLE_OUT_PATH = "out/table.txt"
+MAX_EVAL = 30
 
 def isYellow():
     return traci.trafficlight.getPhase("center") % 2 != 0
@@ -41,58 +46,63 @@ def run():
     num_of_actions = 4
 
     table = Table(num_of_states, num_of_actions)
+    if os.path.exists(TABLE_OUT_PATH):
+        table.load(TABLE_OUT_PATH)
     detectors = Detectors()
     
-    prev_eval = sys.float_info.max
+    prev_eval = MAX_EVAL
 
-    flow = 0
-    seconds_in_chunk = 0
+    chunks = []
+    num_passed_light = 0
 
     while seconds < SIMULATION_DURATION:
         traci.simulationStep()
-        detectors.update()
-        table.update()
         seconds += STEP_SIZE
 
-        print("State: {}".format(table.current_state))
-
-        if isYellow() and steps_in_phase >= 3:
-            current_phase = table.get_next_action() * 2
-            print("Random: {}".format(current_phase))
-            traci.trafficlight.setPhase("center", current_phase)
-            steps_in_phase = 0
+        detectors.update()
+        num_passed_light += detectors.num_passed
+        
+        if isYellow() and steps_in_phase >= 3:# transition from yellow to green
+            prev_state = table.state
+            prev_action = table.predicted_action
+            table.next_step()
+            # print("State: {}".format(table.state))
             
-            sum_of_cars = detectors.num_cars
-            num_passed_light = detectors.num_passed
+            # print("Number passed: {}".format(num_passed_light))
+            # flow = num_passed_light * 60 / GREEN_LIGHT_DUR + YELLOW_LIGHT_DUR
+            # print("Flow: {}".format(flow))
 
+            sum_of_cars = detectors.num_cars
             curr_eval = 0
             if sum_of_cars != 0:
                 curr_eval = num_passed_light / sum_of_cars
-                print("Ratio: {} / {} = {}".format(num_passed_light, sum_of_cars, curr_eval))
             else:
-                curr_eval = sys.float_info.max
-                print("Ratio: {}".format(curr_eval))
+                curr_eval = MAX_EVAL
+
             reward = curr_eval - prev_eval
-            print("Reward: {} - {} = {}".format(curr_eval, prev_eval, reward))
+            chunks.append((prev_state, prev_action, reward, table.state))
+
+            if len(chunks) == NUM_CHUNKS_IN_PERIOD:
+                table.learn(chunks)
+                table.save(TABLE_OUT_PATH)
+                chunks = []
+            
+            steps_in_phase = 0
+            next_action = table.predicted_action
+            current_phase = next_action * 2
+            # print("Next phase: {}".format(current_phase))
+            traci.trafficlight.setPhase("center", current_phase)
+
             prev_eval = curr_eval
             num_passed_light = 0
-            if seconds_in_chunk >= CHUNK_DURATION:
-                # save chunk
-                pass
+            num_passed_light = 0
 
-        elif steps_in_phase >= 15:
+        elif steps_in_phase >= GREEN_LIGHT_DUR:
             current_phase += 1
             traci.trafficlight.setPhase("center", current_phase)
             steps_in_phase = 0
         else:
             steps_in_phase += STEP_SIZE
-
-        
-
-        if seconds_in_chunk >= CHUNK_DURATION:
-            seconds_in_chunk = 0
-        else:
-            seconds_in_chunk += STEP_SIZE
 
     num_passed_light = detectors.num_passed
     print("Num of cars: {}".format(num_passed_light))
@@ -104,12 +114,16 @@ def run():
 # this is the main entry point of this script
 if __name__ == "__main__":
     out = 'out'
+    cpus = multiprocessing.cpu_count()
     if not os.path.exists(out):
         os.mkdir(out)
 
-    sumoBinary = checkBinary('sumo-gui')
+    # sumoBinary = checkBinary('sumo-gui')
+    sumoBinary = checkBinary('sumo')
     traci.start([sumoBinary, "-c", "cross.sumocfg",
                              "--tripinfo-output", os.path.join(out, "tripinfo.xml"),
-                             "--step-length", "{}".format(STEP_SIZE)])
+                             "--step-length", "{}".format(STEP_SIZE),
+                             "--threads", "{}".format(cpus),
+                             '--no-step-log'])
 
     run()
