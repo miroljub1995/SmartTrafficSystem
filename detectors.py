@@ -9,13 +9,16 @@ class Detectors:
 
         self.num_passed = 0
         self.num_cars = 0
+        self.passed = []
 
     def update(self):
         self.num_passed = 0
         self.num_cars = 0
+        self.passed = []
         for det in self.detectors:
             det.update()
             self.num_passed += det.num_passed
+            self.passed.extend(det.passed)
             self.num_cars += det.num_cars()
 
 class Detector:
@@ -24,11 +27,13 @@ class Detector:
         self.num_arrived = 0
         self.num_passed = 0
 
+        self.passed = []
         self.cars = []
 
     def update(self):
         self.num_passed = 0
         self.num_arrived = 0
+        self.passed = []
         cars = traci.lanearea.getLastStepVehicleIDs(self.id)
         for car in cars:
             if car not in self.cars:
@@ -38,6 +43,7 @@ class Detector:
             if car not in cars:
                 self.cars.remove(car)
                 self.num_passed += 1
+                self.passed.append(car)
 
     def num_cars(self):
         return len(self.cars)

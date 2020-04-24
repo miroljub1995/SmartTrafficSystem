@@ -4,10 +4,11 @@ import traci
 class Table:
     def __init__(self, num_of_states, num_of_actions):
         self.q_matrix = np.zeros((num_of_states, num_of_actions))
+        self.state = 0
         self.next_step()
 
     def next_step(self):
-        self.state = self.__calculate_current_state()
+        self.__update_current_state()
         self.predicted_action = self.__get_next_action()
 
     def save(self, path):
@@ -33,19 +34,23 @@ class Table:
         return selected
 
     def learn(self, chunks):
-        n = 4
-        gama = 0.5
+        n = 20
+        gamma = 0.9
         num_chunks = len(chunks)
         loss = 0.0
         for chunk in reversed(chunks):
             s, a, r, s_prim = chunk
             old_val = self.q_matrix[s, a]
-            self.q_matrix[s, a] += 1. / n * (r + gama * np.amax(self.q_matrix[s_prim]) - self.q_matrix[s, a])
+            old_max = np.argmax(self.q_matrix[s])
+            self.q_matrix[s, a] += 1. / n * (r + gamma * np.amax(self.q_matrix[s_prim]) - self.q_matrix[s, a])
             loss += abs(old_val - self.q_matrix[s, a])
+            new_max = np.argmax(self.q_matrix[s])
+            if old_max != new_max:
+                print("Max changed")
         print("Loss: {}".format(loss / num_chunks))
 
 
-    def __calculate_current_state(self):
+    def __update_current_state(self):
         det_pairs = [
             ('e2Detector_r_up_0', 'e2Detector_r_down_0'),
             ('e2Detector_r_up_1', 'e2Detector_r_down_1'),
@@ -53,7 +58,7 @@ class Table:
             ('e2Detector_r_right_1', 'e2Detector_r_left_1')]
 
         substates = np.array([self.__det_pair_to_substate(pair, 3) for pair in det_pairs])
-        return self.__substates_to_state(substates, 6)
+        self.state = self.__substates_to_state(substates, 6)
 
     def __substates_to_state(self, substates, num_substates):
         result = 0
@@ -80,7 +85,7 @@ class Table:
         return int((-(i ** 2) + i * (2 * n - 1) + 2 * j) / 2)
 
     def __num_cars_to_intervals(self, n):
-        if n > 4:
+        if n >= 4:
             return 2
         elif n > 0:
             return 1

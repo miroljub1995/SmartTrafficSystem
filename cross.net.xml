@@ -124,6 +124,18 @@
         <phase duration="1000000" state="rrrrrGrrrrrG"/>
         <phase duration="1000000" state="rrrrryrrrrry"/>
     </tlLogic>
+    
+    <!-- <tlLogic id="center" type="static" programID="1" offset="0">
+        <phase duration="15" state="GGrrrrGGrrrr"/>
+        <phase duration="3" state="yyrrrryyrrrr"/>
+        <phase duration="15" state="rrGrrrrrGrrr"/>
+        <phase duration="3" state="rryrrrrryrrr"/>
+        <phase duration="15" state="rrrGGrrrrGGr"/>
+        <phase duration="3" state="rrryyrrrryyr"/>
+        <phase duration="15" state="rrrrrGrrrrrG"/>
+        <phase duration="3" state="rrrrryrrrrry"/>
+    </tlLogic> -->
+    
 
     <junction id="center" type="traffic_light" x="0.00" y="0.00" incLanes="r_up_0 r_up_1 r_right_0 r_right_1 r_down_0 r_down_1 r_left_0 r_left_1" intLanes=":center_0_0 :center_1_0 :center_2_0 :center_3_0 :center_4_0 :center_5_0 :center_6_0 :center_7_0 :center_8_0 :center_9_0 :center_10_0 :center_11_0" shape="-6.40,10.40 6.40,10.40 6.84,8.18 7.40,7.40 8.18,6.84 9.18,6.51 10.40,6.40 10.40,-6.40 8.18,-6.84 7.40,-7.40 6.84,-8.18 6.51,-9.18 6.40,-10.40 -6.40,-10.40 -6.84,-8.18 -7.40,-7.40 -8.18,-6.84 -9.18,-6.51 -10.40,-6.40 -10.40,6.40 -8.18,6.84 -7.40,7.40 -6.84,8.18 -6.51,9.18">
         <request index="0"  response="000000000000" foes="000000010000" cont="0"/>
