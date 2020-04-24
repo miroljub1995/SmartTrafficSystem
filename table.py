@@ -2,9 +2,13 @@ import numpy as np
 import traci
 
 class Table:
-    def __init__(self, num_of_states, num_of_actions):
+    TABLE_SAVING_INTERVAL = 20
+
+    def __init__(self, num_of_states, num_of_actions, out_path):
         self.q_matrix = np.zeros((num_of_states, num_of_actions))
+        self.out_path = out_path
         self.state = 0
+        self.num_learned = 0
         self.next_step()
 
     def next_step(self):
@@ -48,7 +52,13 @@ class Table:
             if old_max != new_max:
                 print("Max changed")
         print("Loss: {}".format(loss / num_chunks))
+        self.save_if_needed()
 
+    def save_if_needed(self):
+        self.num_learned += 1
+        if self.num_learned >= self.TABLE_SAVING_INTERVAL:
+            self.save(self.out_path)
+            self.num_learned = 0
 
     def __update_current_state(self):
         det_pairs = [

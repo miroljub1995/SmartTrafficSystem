@@ -24,13 +24,17 @@ import matplotlib.pyplot as plt
 
 from detectors import Detectors
 from table import Table
+from phase_decision import Q_learning_decision
+from phase_controller import Phase_controller
+from output_generators import Average_waiting_time
 
 STEP_SIZE = 0.2
 SIMULATION_DURATION = 4000000
-NUM_CHUNKS_IN_PERIOD = 10
+NUM_CHUNKS_IN_LEARNING_PERIOD = 10
 GREEN_LIGHT_DUR = 15
 YELLOW_LIGHT_DUR = 3
 TABLE_OUT_PATH = "out/table.txt"
+OUT_DIR = "out/q_learning/"
 
 TRAINING_DURATION = 36000
 TABLE_SAVING_INTERVAL = 20
@@ -40,8 +44,6 @@ def isYellow():
 
 def run():
     seconds = 0
-    current_phase = 0
-    steps_in_phase = 0
     #           v0   v1  v2
     # intervali: 0, 1-4, 5+  (v0 x v0), (v0 x v1), (v0 x v2), (v1 x v1), (v1 x v2), (v2 x v2)
     # podstanja                  s0         s1         s2         s3         s4         s5
@@ -49,101 +51,61 @@ def run():
     num_of_states = states_per_det ** 4
     num_of_actions = 4
 
-    table = Table(num_of_states, num_of_actions)
+    table = Table(num_of_states, num_of_actions, TABLE_OUT_PATH)
     if os.path.exists(TABLE_OUT_PATH):
         table.load(TABLE_OUT_PATH)
-    detectors = Detectors()
+    phase_decision = Q_learning_decision(table)
+    phase_controller = Phase_controller(STEP_SIZE, GREEN_LIGHT_DUR, YELLOW_LIGHT_DUR)
+    detectors = Detectors(phase_controller)
+
+    #generators
+    average_waiting_time = Average_waiting_time("out/q_learning/")
     
     prev_eval = 0
 
     chunks = []
-    num_passed_light = 0
-    sum_of_cars_prev = 0.5
-    num_learned = 0
+    sum_of_cars_prev = detectors.num_cars + 0.5
     
-    car_passed = []
-    samples = []
-
     # while seconds < SIMULATION_DURATION:
     start = time.time()
     while time.time() - start < TRAINING_DURATION:
         traci.simulationStep()
-        # continue
+        phase_controller.simulation_step()
         seconds += STEP_SIZE
-
         detectors.update()
-        num_passed_light += detectors.num_passed
-        car_passed.extend([traci.vehicle.getAccumulatedWaitingTime(car) for car in detectors.passed])
-        # if len(car_passed) > 100:
-        #     to_remove = len(car_passed) - 100
-        #     car_passed = car_passed[to_remove:]
+
+        print("Passed: {}".format(detectors.num_passed_light))
         
-        if isYellow() and steps_in_phase >= 3:# transition from yellow to green
-
-            #drawing stats
-            all_cars_on_scene = traci.vehicle.getIDList()
-            avg = 0
-            if len(all_cars_on_scene) > 0:
-                avg = np.average([traci.vehicle.getAccumulatedWaitingTime(car) for car in all_cars_on_scene])
-            sample = [[avg], [seconds]]
-            samples = np.hstack((np.reshape(samples, (2, -1)), sample))
-
+        if phase_controller.is_yellow() and phase_controller.is_end_of_yellow():# transition from yellow to green
+            average_waiting_time.update(seconds)
             
-            # car_passed_average_wait = 0
-            # if len(car_passed):
-            #     car_passed_average_wait = np.average(car_passed)
-            # print("Average: {} {}".format(car_passed, car_passed_average_wait))
-
-            # x = [[car_passed_average_wait], [seconds]]
-            # samples = np.hstack((np.reshape(samples, (2, -1)), x))
-
-            print("Samples: {}".format(samples))
-            plt.plot(samples[1], samples[0])
-            # plt.pause(0.05)
-            car_passed = []
-
+            #drawing stats
+            plt.plot(average_waiting_time.samples[1], average_waiting_time.samples[0])
+            plt.pause(0.05)
 
             prev_state = table.state
             prev_action = table.predicted_action
             table.next_step()
-            # print("State: {}".format(table.state))
-            
-            # print("Number passed: {}".format(num_passed_light))
-            # flow = num_passed_light * 60 / GREEN_LIGHT_DUR + YELLOW_LIGHT_DUR
-            # print("Flow: {}".format(flow))
 
-            sum_of_cars = detectors.num_cars + 0.5
-            curr_eval = 0
-            curr_eval = num_passed_light / sum_of_cars_prev
-
+            curr_eval = detectors.num_passed_light / sum_of_cars_prev
             reward = curr_eval - prev_eval
             chunks.append((prev_state, prev_action, reward, table.state))
-            sum_of_cars_prev = sum_of_cars
 
-            if len(chunks) == NUM_CHUNKS_IN_PERIOD:
+            if len(chunks) == NUM_CHUNKS_IN_LEARNING_PERIOD:
                 table.learn(chunks)
-                num_learned += 1
-                if num_learned >= TABLE_SAVING_INTERVAL:
-                    table.save(TABLE_OUT_PATH)
-                    num_learned = 0
                 chunks = []
             
-            steps_in_phase = 0
-            next_action = table.predicted_action
-            current_phase = next_action * 2
-            # print("Next phase: {}".format(current_phase))
-            traci.trafficlight.setPhase("center", current_phase)
+            current_phase = phase_decision.next_phase()
+            phase_controller.set_phase(current_phase)
 
             prev_eval = curr_eval
-            num_passed_light = 0
-            num_passed_light = 0
+            sum_of_cars_prev = detectors.num_cars + 0.5
+            detectors.num_passed_light = 0
 
-        elif steps_in_phase >= GREEN_LIGHT_DUR:
+        elif phase_controller.is_end_of_green():
+            current_phase = phase_controller.get_phase()
             current_phase += 1
-            traci.trafficlight.setPhase("center", current_phase)
-            steps_in_phase = 0
-        else:
-            steps_in_phase += STEP_SIZE
+            phase_controller.set_phase(current_phase)
 
     table.save(TABLE_OUT_PATH)
     traci.close()

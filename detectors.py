@@ -2,7 +2,8 @@ import traci
 
 
 class Detectors:
-    def __init__(self):
+    def __init__(self, phase_controller):
+        self.phase_controller = phase_controller
         self.detectors = []
         for det in traci.lanearea.getIDList():
             self.detectors.append(Detector(det))
@@ -10,6 +11,7 @@ class Detectors:
         self.num_passed = 0
         self.num_cars = 0
         self.passed = []
+        self.num_passed_light = 0
 
     def update(self):
         self.num_passed = 0
@@ -20,6 +22,7 @@ class Detectors:
             self.num_passed += det.num_passed
             self.passed.extend(det.passed)
             self.num_cars += det.num_cars()
+        self.num_passed_light += self.num_passed
 
 class Detector:
     def __init__(self, id_string):
