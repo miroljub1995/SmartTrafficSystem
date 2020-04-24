@@ -16,3 +16,9 @@ def q_factory(out_dir, detectors):
     if os.path.exists(table_out_path):
         table.load(table_out_path)
     return table
+
+def r_factory(_, __):
+    raise NotImplementedError
+
+def rr_factory(_, __):
+    raise NotImplementedError

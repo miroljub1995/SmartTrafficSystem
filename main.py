@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 from detectors import Detectors
 from phase_controller import Phase_controller
 from output_generators import Average_waiting_time
-from factories import q_factory
+from factories import q_factory, r_factory, rr_factory
 
 STEP_SIZE = 0.2
 SIMULATION_DURATION = 4000000
@@ -51,8 +51,6 @@ def run(config):
         seconds += STEP_SIZE
         detectors.update()
 
-        # print("Passed: {}".format(detectors.num_passed_light))
-
         if phase_controller.is_yellow() and phase_controller.is_end_of_yellow():# transition from yellow to green
             average_waiting_time.update(seconds)
             #drawing stats
@@ -77,18 +75,17 @@ class Config:
         self.factory = factory
         self.out_dir = out_dir
 
-def get_q_config():
-    config = Config(q_factory, "out/q/")
-    return config
-
-
 def get_config():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", help="Define type, can be q (for q learning), rand (for random) or rr (for robin round)", type=str, choices=["q", "r", "rr"], required=True)
     args = parser.parse_args()
     if args.t == "q":
-        return get_q_config()
-    return None
+        return Config(q_factory, "out/q/")
+    elif args.t == 'r':
+        return Config(r_factory, "out/r/")
+    elif args.t == 'rr':
+        return Config(rr_factory, "out/rr/")
+    raise Exception("Should not be reached")
 
 def main():
     config = get_config()
