@@ -78,6 +78,11 @@ class Table:
         print("Loss: {}".format(loss / num_chunks))
         self.save_if_needed()
 
+    def get_predicted_phase(self):
+        next_action = self.predicted_action
+        current_phase = next_action * 2
+        return current_phase
+
     def save_if_needed(self):
         self.num_learned += 1
         if self.num_learned >= self.TABLE_SAVING_INTERVAL:
