@@ -3,17 +3,41 @@ import traci
 
 class Table:
     TABLE_SAVING_INTERVAL = 20
+    NUM_CHUNKS_IN_LEARNING_PERIOD = 10
 
-    def __init__(self, num_of_states, num_of_actions, out_path):
+    def __init__(self, num_of_states, num_of_actions, out_path, detectors):
         self.q_matrix = np.zeros((num_of_states, num_of_actions))
         self.out_path = out_path
+        self.detectors = detectors
         self.state = 0
         self.num_learned = 0
-        self.next_step()
+        self.__update_current()
+        self.prev_state = None
+        self.prev_action = None
+        self.prev_eval = 0
+        self.sum_of_cars_prev = self.detectors.num_cars + 0.5
+        self.chunks = []
 
-    def next_step(self):
+    def __save_previous(self):
+        self.prev_state = self.state
+        self.prev_action = self.predicted_action
+
+    def __update_current(self):
         self.__update_current_state()
         self.predicted_action = self.__get_next_action()
+
+    def next_step(self):
+        self.__save_previous()
+        self.__update_current()
+
+        curr_eval = self.detectors.num_passed_light / self.sum_of_cars_prev
+        reward = curr_eval - self.prev_eval
+        self.chunks.append((self.prev_state, self.prev_action, reward, self.state))
+        self.prev_eval = curr_eval
+        if len(self.chunks) == self.NUM_CHUNKS_IN_LEARNING_PERIOD:
+            self.learn(self.chunks)
+            self.chunks = []
+        
 
     def save(self, path):
         np.savetxt(path, self.q_matrix, fmt="%+5.15f")

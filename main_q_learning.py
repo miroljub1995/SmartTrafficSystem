@@ -51,20 +51,16 @@ def run():
     num_of_states = states_per_det ** 4
     num_of_actions = 4
 
-    table = Table(num_of_states, num_of_actions, TABLE_OUT_PATH)
-    if os.path.exists(TABLE_OUT_PATH):
-        table.load(TABLE_OUT_PATH)
-    phase_decision = Q_learning_decision(table)
     phase_controller = Phase_controller(STEP_SIZE, GREEN_LIGHT_DUR, YELLOW_LIGHT_DUR)
     detectors = Detectors(phase_controller)
 
+    table = Table(num_of_states, num_of_actions, TABLE_OUT_PATH, detectors)
+    if os.path.exists(TABLE_OUT_PATH):
+        table.load(TABLE_OUT_PATH)
+    phase_decision = Q_learning_decision(table)
+
     #generators
     average_waiting_time = Average_waiting_time("out/q_learning/")
-    
-    prev_eval = 0
-
-    chunks = []
-    sum_of_cars_prev = detectors.num_cars + 0.5
     
     # while seconds < SIMULATION_DURATION:
     start = time.time()
@@ -74,34 +70,21 @@ def run():
         seconds += STEP_SIZE
         detectors.update()
 
-        print("Passed: {}".format(detectors.num_passed_light))
+        # print("Passed: {}".format(detectors.num_passed_light))
         
         if phase_controller.is_yellow() and phase_controller.is_end_of_yellow():# transition from yellow to green
             average_waiting_time.update(seconds)
             
             #drawing stats
-            plt.plot(average_waiting_time.samples[1], average_waiting_time.samples[0])
-            plt.pause(0.05)
+            # plt.plot(average_waiting_time.samples[1], average_waiting_time.samples[0])
+            # plt.pause(0.05)
 
-            prev_state = table.state
-            prev_action = table.predicted_action
             table.next_step()
-
-            curr_eval = detectors.num_passed_light / sum_of_cars_prev
-            reward = curr_eval - prev_eval
-            chunks.append((prev_state, prev_action, reward, table.state))
-
-            if len(chunks) == NUM_CHUNKS_IN_LEARNING_PERIOD:
-                table.learn(chunks)
-                chunks = []
             
             current_phase = phase_decision.next_phase()
             phase_controller.set_phase(current_phase)
 
-            prev_eval = curr_eval
-            sum_of_cars_prev = detectors.num_cars + 0.5
             detectors.num_passed_light = 0
-
         elif phase_controller.is_end_of_green():
             current_phase = phase_controller.get_phase()
             current_phase += 1

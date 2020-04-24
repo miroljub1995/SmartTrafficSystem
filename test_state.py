@@ -1,7 +1,4 @@
 import sys
-s = int(sys.argv[1])
-
-
 
 def get_substates(state, num_diff_substates, substates_count):
     res = []
@@ -11,4 +8,4 @@ def get_substates(state, num_diff_substates, substates_count):
         res.append(d)
     return res
 
-print(get_substates(s, 6, 4))
+print(get_substates(int(sys.argv[1]), 6, 4))
