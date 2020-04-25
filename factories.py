@@ -2,6 +2,7 @@ import os
 
 from q_decision import Table
 from r_decision import Random_decision
+from rr_decision import Round_robin_decision
 
 def q_factory(out_dir, detectors):
     #           v0   v1  v2
@@ -22,4 +23,4 @@ def r_factory(_, __):
     return Random_decision()
 
 def rr_factory(_, __):
-    raise NotImplementedError
+    return Round_robin_decision()
