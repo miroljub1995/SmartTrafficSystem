@@ -71,21 +71,24 @@ def run(config):
     sys.stdout.flush()
 
 class Config:
-    def __init__(self, factory, out_dir):
+    def __init__(self, factory, out_dir, sumo_binary):
         self.factory = factory
         self.out_dir = out_dir
+        self.sumo_binary = sumo_binary
 
 def get_config():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", help="Define type, can be q (for q learning), rand (for random) or rr (for robin round)", type=str, choices=["q", "r", "rr"], required=True)
+    parser.add_argument("--no-gui", dest="sumo_binary", action="store_const", const="sumo", default="sumo-gui", help="run without gui (default: with gui)")
     args = parser.parse_args()
     if args.t == "q":
-        return Config(q_factory, "out/q/")
+        return Config(q_factory, "out/q/", args.sumo_binary)
     elif args.t == 'r':
-        return Config(r_factory, "out/r/")
+        return Config(r_factory, "out/r/", args.sumo_binary)
     elif args.t == 'rr':
-        return Config(rr_factory, "out/rr/")
-    raise Exception("Should not be reached")
+        return Config(rr_factory, "out/rr/", args.sumo_binary)
+    else:
+        raise Exception("Should not be reached")
 
 def main():
     config = get_config()
@@ -98,8 +101,7 @@ def main():
         os.mkdir(det_out)
 
     cpus = multiprocessing.cpu_count()
-    sumo_binary = checkBinary('sumo-gui')
-    # sumoBinary = checkBinary('sumo')
+    sumo_binary = checkBinary(config.sumo_binary)
     traci.start([sumo_binary, "-c", "cross.sumocfg",
                              "--tripinfo-output", os.path.join(det_out, "tripinfo.xml"),
                              "--step-length", "{}".format(STEP_SIZE),
