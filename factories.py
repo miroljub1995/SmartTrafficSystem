@@ -1,6 +1,7 @@
 import os
 
 from q_decision import Table
+from r_decision import Random_decision
 
 def q_factory(out_dir, detectors):
     #           v0   v1  v2
@@ -18,7 +19,7 @@ def q_factory(out_dir, detectors):
     return table
 
 def r_factory(_, __):
-    raise NotImplementedError
+    return Random_decision()
 
 def rr_factory(_, __):
     raise NotImplementedError
