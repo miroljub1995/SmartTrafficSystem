@@ -102,11 +102,12 @@ def main():
 
     cpus = multiprocessing.cpu_count()
     sumo_binary = checkBinary(config.sumo_binary)
-    traci.start([sumo_binary, "-c", "cross.sumocfg",
-                             "--tripinfo-output", os.path.join(det_out, "tripinfo.xml"),
-                             "--step-length", "{}".format(STEP_SIZE),
-                             "--threads", "{}".format(cpus),
-                             '--no-step-log'])
+    traci.start([sumo_binary,
+                 "-c", "cross.sumocfg",
+                 "--tripinfo-output", os.path.join(det_out, "tripinfo.xml"),
+                 "--step-length", "{}".format(STEP_SIZE),
+                 "--threads", "{}".format(cpus),
+                 '--no-step-log'])
 
     run(config)
 
