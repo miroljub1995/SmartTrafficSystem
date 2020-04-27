@@ -29,7 +29,7 @@ from factories import q_factory, r_factory, rr_factory
 from traffic_generator import Traffic_generator
 
 STEP_SIZE = 0.2
-SIMULATION_DURATION = 4000000
+SIMULATION_DURATION = 50000
 TRAINING_DURATION = 36000
 GREEN_LIGHT_DUR = 15
 YELLOW_LIGHT_DUR = 3
@@ -45,9 +45,9 @@ def run(config):
     #generators
     average_waiting_time = Average_waiting_time(config.out_dir)
 
-    # while seconds < SIMULATION_DURATION:
-    start = time.time()
-    while time.time() - start < TRAINING_DURATION:
+    while seconds < SIMULATION_DURATION:
+    # start = time.time()
+    # while time.time() - start < TRAINING_DURATION:
         traci.simulationStep()
         traffic.next_step()
         phase_controller.simulation_step()

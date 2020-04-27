@@ -1,8 +1,8 @@
 import random
 import traci
 
-CHANGE_PROBABILITIES_INTERVAL = 300
-MAX_PROBABILIY = 0.08
+CHANGE_PROBABILITIES_INTERVAL = 600
+MAX_PROBABILIY = 0.09
 
 class Route_generator:
     def __init__(self, route_name):
