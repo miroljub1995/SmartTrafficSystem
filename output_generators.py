@@ -8,11 +8,11 @@ class Average_waiting_time:
         self.samples = []
         self.num_unsaved = 0
 
-    def update(self, seconds):
+    def record(self, seconds):
         all_cars_on_scene = traci.vehicle.getIDList()
         avg = 0
         if len(all_cars_on_scene) > 0:
-            avg = np.average([traci.vehicle.getAccumulatedWaitingTime(car) for car in all_cars_on_scene])
+            avg = np.average(list(map(traci.vehicle.getAccumulatedWaitingTime, all_cars_on_scene)))
         sample = [[avg], [seconds]]
         self.samples = np.hstack((np.reshape(self.samples, (2, -1)), sample))
         self.num_unsaved += 1

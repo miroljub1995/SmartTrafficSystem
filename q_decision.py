@@ -37,7 +37,6 @@ class Table:
         if len(self.chunks) == self.NUM_CHUNKS_IN_LEARNING_PERIOD:
             self.learn(self.chunks)
             self.chunks = []
-        
 
     def save(self, path):
         np.savetxt(path, self.q_matrix, fmt="%+5.15f")

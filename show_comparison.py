@@ -23,7 +23,7 @@ def average_in_partitions(arr):
     arr_reshaped = np.average(arr_reshaped, axis=2)
     return arr_reshaped
 
-def main():
+def show_awt():
     check_folders()
     awt_q = np.loadtxt('out/q/awt.txt')
     awt_r = np.loadtxt('out/r/awt.txt')
@@ -51,4 +51,8 @@ def main():
     plt.legend()
 
     plt.show()
+
+def main():
+    show_awt()
+
 main()

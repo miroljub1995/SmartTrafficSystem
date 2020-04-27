@@ -37,13 +37,13 @@ class Detector:
         self.num_passed = 0
         self.num_arrived = 0
         self.passed = []
-        cars = traci.lanearea.getLastStepVehicleIDs(self.id)
-        for car in cars:
+        cars_in_detectors = traci.lanearea.getLastStepVehicleIDs(self.id)
+        for car in cars_in_detectors:
             if car not in self.cars:
                 self.num_arrived += 1
                 self.cars.append(car)
         for car in list(self.cars):
-            if car not in cars:
+            if car not in cars_in_detectors:
                 self.cars.remove(car)
                 self.num_passed += 1
                 self.passed.append(car)

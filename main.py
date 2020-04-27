@@ -55,10 +55,7 @@ def run(config):
         detectors.update()
 
         if phase_controller.is_yellow() and phase_controller.is_end_of_yellow():# transition from yellow to green
-            average_waiting_time.update(seconds)
-            #drawing stats
-            # plt.plot(average_waiting_time.samples[1], average_waiting_time.samples[0])
-            # plt.pause(0.05)
+            average_waiting_time.record(seconds)
 
             light_decision_system.next_step()
             current_phase = light_decision_system.get_predicted_phase()
@@ -110,7 +107,8 @@ def main():
                  "--tripinfo-output", os.path.join(det_out, "tripinfo.xml"),
                  "--step-length", "{}".format(STEP_SIZE),
                  "--threads", "{}".format(cpus),
-                 '--no-step-log'])
+                 '--no-step-log',
+                 '--waiting-time-memory 1000000'])
 
     run(config)
 
