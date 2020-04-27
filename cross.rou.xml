@@ -60,7 +60,7 @@
     <vehicle id="vehicle_3" type="car1" depart="3.00" route="route_up_down"/>
     <vehicle id="vehicle_4" type="car1" depart="4.00" route="route_up_down"/> -->
 
-    <flow color="1,1,0" type="car1" begin="0" end= "1000000000" probability="0.03" id="flow_00" route="route_up_down"/>
+    <!-- <flow color="1,1,0" type="car1" begin="0" end= "1000000000" probability="0.03" id="flow_00" route="route_up_down"/>
     <flow color="1,1,0" type="car1" begin="0" end= "1000000000" probability="0.03" id="flow_09" route="route_right_up"/>
     <flow color="1,1,0" type="car1" begin="0" end= "1000000000" probability="0.03" id="flow_03" route="route_down_up"/>
     <flow color="1,1,0" type="car1" begin="0" end= "1000000000" probability="0.03" id="flow_06" route="route_left_up"/>
@@ -71,7 +71,7 @@
     <flow color="1,1,0" type="car1" begin="8" end= "1000000000" probability="0.03" id="flow_02" route="route_up_right"/>
     <flow color="1,1,0" type="car1" begin="8" end= "1000000000" probability="0.03" id="flow_05" route="route_down_right"/>
     <flow color="1,1,0" type="car1" begin="8" end= "1000000000" probability="0.03" id="flow_08" route="route_left_right"/>
-    <flow color="1,1,0" type="car1" begin="8" end= "1000000000" probability="0.03" id="flow_10" route="route_right_down"/>
+    <flow color="1,1,0" type="car1" begin="8" end= "1000000000" probability="0.03" id="flow_10" route="route_right_down"/> -->
 
     <!-- <flow color="1,1,0" type="car1" begin="0" end= "1000" probability="0.08" id="flow_00" route="route_up_down"/> -->
     <!-- <flow color="1,1,0" type="car1" begin="0" end= "1000" probability="0.08" id="flow_09" route="route_right_up"/> -->

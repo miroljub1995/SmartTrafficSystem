@@ -26,6 +26,7 @@ from detectors import Detectors
 from phase_controller import Phase_controller
 from output_generators import Average_waiting_time
 from factories import q_factory, r_factory, rr_factory
+from traffic_generator import Traffic_generator
 
 STEP_SIZE = 0.2
 SIMULATION_DURATION = 4000000
@@ -37,6 +38,7 @@ def run(config):
     seconds = 0
     phase_controller = Phase_controller(STEP_SIZE, GREEN_LIGHT_DUR, YELLOW_LIGHT_DUR)
     detectors = Detectors(phase_controller)
+    traffic = Traffic_generator(STEP_SIZE)
 
     light_decision_system = config.factory(config.out_dir, detectors)
 
@@ -47,6 +49,7 @@ def run(config):
     start = time.time()
     while time.time() - start < TRAINING_DURATION:
         traci.simulationStep()
+        traffic.next_step()
         phase_controller.simulation_step()
         seconds += STEP_SIZE
         detectors.update()
