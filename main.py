@@ -108,7 +108,7 @@ def main():
                  "--step-length", "{}".format(STEP_SIZE),
                  "--threads", "{}".format(cpus),
                  '--no-step-log',
-                 '--waiting-time-memory 1000000'])
+                 '--waiting-time-memory', '1000000'])
 
     run(config)
 
